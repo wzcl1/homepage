@@ -21,6 +21,7 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   line-height: 1.5;
+  padding-top: env(safe-area-inset-top);
 }
 
 .container {
