@@ -197,7 +197,7 @@ button[type="submit"]:hover {
 .item-list {
   list-style: none;
   margin: 0;
-  padding: 0 0 88px;
+  padding: 0;
   display: grid;
   gap: 0.5rem;
 }
@@ -469,7 +469,7 @@ button[type="submit"]:hover {
 .status {
   max-width: 72rem;
   margin: 0 auto;
-  padding: 0 1rem 2rem;
+  padding: 0 1rem 88px;
   min-height: 1.5em;
   text-align: center;
   color: var(--text-secondary);
