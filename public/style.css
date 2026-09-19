@@ -320,6 +320,51 @@ button[type="submit"]:hover {
   display: block;
 }
 
+.copy-note {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 7px;
+  background: var(--accent);
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.copy-note:hover,
+.copy-note:focus-visible,
+.copy-note.copied {
+  opacity: 1;
+}
+
+.copy-note svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.copy-note .icon-check {
+  display: none;
+}
+
+.copy-note.copied .icon-copy {
+  display: none;
+}
+
+.copy-note.copied .icon-check {
+  display: block;
+}
+
 .note-meta-row {
   display: flex;
   align-items: center;

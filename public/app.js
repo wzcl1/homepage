@@ -161,6 +161,24 @@ function makeNoteItem(note) {
   wrapper.appendChild(text);
   content.appendChild(wrapper);
 
+  const copyBtn = document.createElement('button');
+  copyBtn.type = 'button';
+  copyBtn.className = 'copy-note';
+  copyBtn.setAttribute('aria-label', 'Copy note');
+  copyBtn.innerHTML =
+    '<svg class="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
+    '<svg class="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(note.text);
+      copyBtn.classList.add('copied');
+      setTimeout(() => copyBtn.classList.remove('copied'), 1500);
+    } catch (err) {
+      setStatus('Copy failed.', 'error');
+    }
+  });
+  content.appendChild(copyBtn);
+
   const actions = document.createElement('div');
   actions.className = 'row-actions';
 
