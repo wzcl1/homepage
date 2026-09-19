@@ -510,7 +510,7 @@ button[type="submit"]:hover {
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: flex-end;
   opacity: 1;
@@ -527,22 +527,34 @@ button[type="submit"]:hover {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px 16px 0 0;
-  padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+  padding: 0.5rem 0.75rem calc(16px + env(safe-area-inset-bottom));
   display: grid;
   gap: 0.5rem;
   transform: translateY(0);
   transition: transform 0.2s ease;
 }
 
+.bottom-sheet.dragging {
+  transition: none;
+}
+
 .sheet-mask.hidden .bottom-sheet {
   transform: translateY(100%);
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 4px auto 8px;
 }
 
 .bottom-sheet button {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 1.1rem;
+  padding: 0.9rem 1.1rem;
   font-weight: 600;
   font-size: 1rem;
   text-align: left;
@@ -553,13 +565,23 @@ button[type="submit"]:hover {
   cursor: pointer;
 }
 
-.bottom-sheet button::before {
-  content: '';
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
+.bottom-sheet button .sheet-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
   background: var(--accent);
   flex-shrink: 0;
+}
+
+.bottom-sheet button .sheet-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
 }
 
 .bottom-sheet button:hover {

@@ -477,6 +477,41 @@ sheetMask.addEventListener('click', (event) => {
   if (event.target === sheetMask) sheetMask.classList.add('hidden');
 });
 
+(function initSheetSwipeDown() {
+  const sheet = sheetMask.querySelector('.bottom-sheet');
+  let startY = 0;
+  let active = false;
+
+  sheetMask.addEventListener('pointerdown', (event) => {
+    if (!event.target.closest('.bottom-sheet')) return;
+    startY = event.clientY;
+    active = true;
+  });
+
+  function close() {
+    if (!active) return;
+    active = false;
+    if (!sheet.classList.contains('dragging')) return;
+    const dy = parseFloat(sheet.style.transform.replace(/[^0-9.-]/g, '')) || 0;
+    sheet.classList.remove('dragging');
+    sheet.style.transform = '';
+    sheetMask.style.opacity = '';
+    if (dy > 120) sheetMask.classList.add('hidden');
+  }
+
+  sheetMask.addEventListener('pointermove', (event) => {
+    if (!active || sheetMask.classList.contains('hidden')) return;
+    const dy = event.clientY - startY;
+    if (dy <= 0) return;
+    sheet.classList.add('dragging');
+    sheet.style.transform = `translateY(${dy}px)`;
+    sheetMask.style.opacity = String(Math.max(0, 1 - dy / 400));
+  });
+
+  sheetMask.addEventListener('pointerup', close);
+  sheetMask.addEventListener('pointercancel', close);
+})();
+
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') sheetMask.classList.add('hidden');
 });
