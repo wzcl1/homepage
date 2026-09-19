@@ -36,10 +36,10 @@ body {
 
 .site-header {
   display: block;
-  width: min(38vw, 120px);
-  height: auto;
-  margin: 1.25rem auto 0;
-  border-radius: 14px;
+  width: 24px;
+  height: 24px;
+  margin: 1rem auto 0;
+  border-radius: 5px;
   filter: brightness(0.92);
 }
 
