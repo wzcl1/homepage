@@ -21,7 +21,7 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   line-height: 1.5;
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(env(safe-area-inset-top) + 28px);
 }
 
 .container {
@@ -34,13 +34,43 @@ body {
   align-items: start;
 }
 
-.site-header {
-  display: block;
-  width: 24px;
-  height: 24px;
-  margin: 1rem auto 0;
-  border-radius: 5px;
-  filter: brightness(0.92);
+.app-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  padding: env(safe-area-inset-top) 16px 0;
+  background: var(--bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-bar img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.app-bar .app-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+  .app-bar {
+    min-height: 64px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  body {
+    padding-top: calc(env(safe-area-inset-top) + 64px);
+  }
 }
 
 .panel {
