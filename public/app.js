@@ -39,7 +39,7 @@ function renderEmpty(container, text) {
 
 function makeLinkItem(link) {
   const li = document.createElement('li');
-  li.className = 'link-item';
+  li.className = 'link-item row';
 
   const main = document.createElement('div');
   main.className = 'item-main';
@@ -58,7 +58,7 @@ function makeLinkItem(link) {
   main.appendChild(label);
 
   const actions = document.createElement('div');
-  actions.className = 'actions';
+  actions.className = 'row-actions';
 
   const editBtn = document.createElement('button');
   editBtn.type = 'button';
@@ -81,6 +81,7 @@ function makeLinkItem(link) {
 }
 
 function renderLinkEditor(li, link) {
+  closeAllRows();
   const editor = document.createElement('div');
   editor.className = 'editing';
 
@@ -132,7 +133,7 @@ function renderLinkEditor(li, link) {
 
 function makeNoteItem(note) {
   const li = document.createElement('li');
-  li.className = 'note-item';
+  li.className = 'note-item row';
 
   const text = document.createElement('div');
   text.className = 'note-text clamped';
@@ -153,7 +154,7 @@ function makeNoteItem(note) {
   wrapper.appendChild(text);
 
   const actions = document.createElement('div');
-  actions.className = 'actions';
+  actions.className = 'row-actions';
 
   const editBtn = document.createElement('button');
   editBtn.type = 'button';
@@ -173,14 +174,15 @@ function makeNoteItem(note) {
   const metaRow = document.createElement('div');
   metaRow.className = 'note-meta-row';
   metaRow.appendChild(toggle);
-  metaRow.appendChild(actions);
 
   li.appendChild(wrapper);
   li.appendChild(metaRow);
+  li.appendChild(actions);
   return li;
 }
 
 function renderNoteEditor(li, note) {
+  closeAllRows();
   const editor = document.createElement('div');
   editor.className = 'editing';
 
@@ -332,6 +334,82 @@ async function deleteNote(id) {
 
 linkForm.addEventListener('submit', addLink);
 noteForm.addEventListener('submit', addNote);
+
+function closeAllRows() {
+  document.querySelectorAll('.row.swiped').forEach((el) => {
+    el.classList.remove('swiped', 'dragging');
+    el.style.removeProperty('--dx');
+  });
+}
+
+(function initSwipeReveal() {
+  let active = null;
+  let startX = 0;
+  let startY = 0;
+  let startVal = 0;
+  let dragging = false;
+  let suppressClick = false;
+
+  document.addEventListener('pointerdown', (event) => {
+    const row = event.target.closest('.row');
+    if (!row || event.target.closest('button, a, input, textarea, .row-actions')) return;
+    active = row;
+    startX = event.clientX;
+    startY = event.clientY;
+    startVal = row.classList.contains('swiped') ? 100 : 0;
+    dragging = false;
+    suppressClick = false;
+  });
+
+  document.addEventListener('pointermove', (event) => {
+    if (!active) return;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+    if (!dragging && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      dragging = true;
+    }
+    if (dragging) {
+      const movement = (startVal === 100 ? -dx : dx) * 2.2;
+      let val = startVal + movement;
+      val = Math.max(0, Math.min(100, val));
+      active.classList.add('dragging');
+      active.style.setProperty('--dx', val.toFixed(1) + '%');
+    }
+  });
+
+  function stopGesture(event) {
+    if (!active) return;
+    if (dragging) {
+      const val = parseFloat(active.style.getPropertyValue('--dx')) || 0;
+      active.classList.remove('dragging');
+      active.style.removeProperty('--dx');
+      active.classList.toggle('swiped', val >= 50);
+      suppressClick = true;
+    }
+    active = null;
+    dragging = false;
+  }
+
+  document.addEventListener('pointerup', stopGesture);
+  document.addEventListener('pointercancel', stopGesture);
+
+  document.addEventListener('click', (event) => {
+    if (suppressClick) {
+      suppressClick = false;
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    if (event.target.closest('.row-actions')) return;
+    const row = event.target.closest('.row');
+    if (row && row.classList.contains('swiped')) {
+      event.preventDefault();
+      closeAllRows();
+      return;
+    }
+    if (!row) closeAllRows();
+  });
+})();
 
 const fab = document.getElementById('fab');
 const sheetMask = document.getElementById('sheet-mask');

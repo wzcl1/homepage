@@ -365,6 +365,68 @@ button[type="submit"]:hover {
   color: var(--danger);
 }
 
+.row {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.row.swiped {
+  --dx: 100%;
+}
+
+.row-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.5rem;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 2;
+  transform: translateX(calc(100% - var(--dx, 0%)));
+  transition: transform 0.2s ease;
+}
+
+.row.dragging .row-actions {
+  transition: none;
+}
+
+.row-actions button {
+  min-height: 40px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.row-actions button.edit:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.row-actions button.delete {
+  color: var(--danger);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.row-actions button.delete:hover {
+  background: rgba(248, 113, 113, 0.12);
+}
+
+@media (hover: hover) {
+  .row:hover .row-actions {
+    --dx: 100%;
+  }
+}
+
 .add-form .editing-actions {
   grid-row: auto;
 }
