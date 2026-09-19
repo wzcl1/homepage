@@ -327,10 +327,10 @@ button[type="submit"]:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   border: none;
-  border-radius: 7px;
+  border-radius: 5px;
   background: var(--accent);
   opacity: 0.45;
   transition: opacity 0.15s ease;
@@ -344,8 +344,8 @@ button[type="submit"]:hover {
 }
 
 .copy-note svg {
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
   fill: none;
   stroke: #ffffff;
   stroke-width: 2;

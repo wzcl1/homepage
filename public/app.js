@@ -135,6 +135,27 @@ function renderLinkEditor(li, link) {
   urlInput.focus();
 }
 
+function copyTextFallback(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  const ok = document.execCommand('copy');
+  ta.remove();
+  if (!ok) throw new Error('copy failed');
+}
+
+function copyNote(copyBtn, text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return Promise.resolve(copyTextFallback(text));
+}
+
 function makeNoteItem(note) {
   const li = document.createElement('li');
   li.className = 'note-item row with-actions';
@@ -168,14 +189,13 @@ function makeNoteItem(note) {
   copyBtn.innerHTML =
     '<svg class="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
     '<svg class="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-  copyBtn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(note.text);
+  copyBtn.addEventListener('click', () => {
+    copyNote(copyBtn, note.text).then(() => {
       copyBtn.classList.add('copied');
       setTimeout(() => copyBtn.classList.remove('copied'), 1500);
-    } catch (err) {
+    }).catch(() => {
       setStatus('Copy failed.', 'error');
-    }
+    });
   });
   content.appendChild(copyBtn);
 
