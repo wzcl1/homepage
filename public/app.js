@@ -231,16 +231,22 @@ function renderAll() {
   linkList.replaceChildren();
   noteList.replaceChildren();
 
-  if (state.links.length === 0) {
+  document.getElementById('link-count').textContent = state.links.length;
+  document.getElementById('note-count').textContent = state.notes.length;
+
+  const links = [...state.links].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+  const notes = [...state.notes].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
+  if (links.length === 0) {
     renderEmpty(linkList, 'No links yet.');
   } else {
-    state.links.forEach((link) => linkList.appendChild(makeLinkItem(link)));
+    links.forEach((link) => linkList.appendChild(makeLinkItem(link)));
   }
 
-  if (state.notes.length === 0) {
+  if (notes.length === 0) {
     renderEmpty(noteList, 'No notes yet.');
   } else {
-    state.notes.forEach((note) => noteList.appendChild(makeNoteItem(note)));
+    notes.forEach((note) => noteList.appendChild(makeNoteItem(note)));
   }
 
   noteList.querySelectorAll('.note-text').forEach((el) => {
@@ -326,6 +332,45 @@ async function deleteNote(id) {
 
 linkForm.addEventListener('submit', addLink);
 noteForm.addEventListener('submit', addNote);
+
+const fab = document.getElementById('fab');
+const sheetMask = document.getElementById('sheet-mask');
+
+function openAddForm(panelId) {
+  const panel = document.getElementById(panelId);
+  const section = panel.querySelector('.section-toggle');
+  if (section) section.open = true;
+  const add = panel.querySelector('.add-toggle');
+  if (add) add.open = true;
+  const field = add && add.querySelector('input, textarea');
+  if (field) field.focus();
+}
+
+fab.addEventListener('click', () => {
+  sheetMask.classList.remove('hidden');
+});
+
+sheetMask.querySelectorAll('.bottom-sheet button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    sheetMask.classList.add('hidden');
+    const panelId = btn.dataset.action === 'link' ? 'links-panel' : 'notes-panel';
+    openAddForm(panelId);
+  });
+});
+
+sheetMask.addEventListener('click', (event) => {
+  if (event.target === sheetMask) sheetMask.classList.add('hidden');
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') sheetMask.classList.add('hidden');
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
 
 (async () => {
   try {

@@ -11,3 +11,12 @@ services:
     volumes:
       - ./data:/app/data
     user: "1000:1000"
+
+  # Cloudflare Tunnel edge for HTTPS (skipped unless started with --profile tunnel).
+  # Browser sees https://<hostname> terminated at Cloudflare; tunnel reaches homepage internally.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    profiles: ["tunnel"]
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN:-}
