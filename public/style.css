@@ -197,7 +197,7 @@ button[type="submit"]:hover {
 .item-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 88px;
   display: grid;
   gap: 0.5rem;
 }
