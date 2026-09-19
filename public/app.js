@@ -304,6 +304,7 @@ async function addLink(event) {
     state.links = links;
     renderAll();
     linkForm.reset();
+    linkForm.setAttribute('hidden', '');
     setStatus('Link added.', 'success');
   } catch (err) {
     setStatus(err.message, 'error');
@@ -323,6 +324,7 @@ async function addNote(event) {
     state.notes = notes;
     renderAll();
     noteForm.reset();
+    noteForm.setAttribute('hidden', '');
     setStatus('Note added.', 'success');
   } catch (err) {
     setStatus(err.message, 'error');
@@ -355,6 +357,12 @@ async function deleteNote(id) {
 
 linkForm.addEventListener('submit', addLink);
 noteForm.addEventListener('submit', addNote);
+
+document.querySelectorAll('.add-form .form-actions button.cancel').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    btn.closest('.add-form').setAttribute('hidden', '');
+  });
+});
 
 function closeAllRows() {
   document.querySelectorAll('.row.swiped').forEach((el) => {

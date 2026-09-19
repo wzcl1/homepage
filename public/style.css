@@ -147,6 +147,28 @@ body {
   display: none;
 }
 
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.form-actions button {
+  flex: 1;
+  padding: 0.55rem 1rem;
+}
+
+.form-actions button.cancel {
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.form-actions button.cancel:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 .field {
   display: grid;
   gap: 0.25rem;

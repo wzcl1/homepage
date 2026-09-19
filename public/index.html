@@ -44,7 +44,10 @@
             <label for="link-label">Label</label>
             <input type="text" id="link-label" name="label" placeholder="Optional label" autocomplete="off">
           </div>
-          <button type="submit">Add link</button>
+          <div class="form-actions">
+            <button type="submit">Add link</button>
+            <button type="button" class="cancel">Cancel</button>
+          </div>
         </form>
         <ul id="link-list" class="item-list"></ul>
       </details>
@@ -69,7 +72,10 @@
             <label for="note-text">Note</label>
             <textarea id="note-text" name="text" rows="3" placeholder="Write a note..." required></textarea>
           </div>
-          <button type="submit">Add note</button>
+          <div class="form-actions">
+            <button type="submit">Add note</button>
+            <button type="button" class="cancel">Cancel</button>
+          </div>
         </form>
         <ul id="note-list" class="item-list"></ul>
       </details>
