@@ -7,6 +7,8 @@ const PRECACHE = [
   '/style.css',
   '/app.js',
   '/manifest.webmanifest',
+  '/header.jpg',
+  '/icons/icon-180.png',
   '/icons/icon-192.png',
   '/icons/icon-512.png'
 ];

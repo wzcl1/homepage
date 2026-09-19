@@ -34,6 +34,15 @@ body {
   align-items: start;
 }
 
+.site-header {
+  display: block;
+  width: min(38vw, 120px);
+  height: auto;
+  margin: 1.25rem auto 0;
+  border-radius: 14px;
+  filter: brightness(0.92);
+}
+
 .panel {
   background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.06);
