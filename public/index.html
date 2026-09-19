@@ -31,20 +31,17 @@
           </span>
           <span class="section-count" id="link-count">0</span>
         </summary>
-        <details class="add-toggle">
-          <summary>Add link</summary>
-          <form id="link-form" class="add-form">
-            <div class="field">
-              <label for="link-url">URL</label>
-              <input type="url" id="link-url" name="url" placeholder="https://example.com" autocomplete="off" required>
-            </div>
-            <div class="field">
-              <label for="link-label">Label</label>
-              <input type="text" id="link-label" name="label" placeholder="Optional label" autocomplete="off">
-            </div>
-            <button type="submit">Add link</button>
-          </form>
-        </details>
+        <form id="link-form" class="add-form" hidden>
+          <div class="field">
+            <label for="link-url">URL</label>
+            <input type="url" id="link-url" name="url" placeholder="https://example.com" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="link-label">Label</label>
+            <input type="text" id="link-label" name="label" placeholder="Optional label" autocomplete="off">
+          </div>
+          <button type="submit">Add link</button>
+        </form>
         <ul id="link-list" class="item-list"></ul>
       </details>
     </section>
@@ -63,16 +60,13 @@
           </span>
           <span class="section-count" id="note-count">0</span>
         </summary>
-        <details class="add-toggle">
-          <summary>Add note</summary>
-          <form id="note-form" class="add-form">
-            <div class="field">
-              <label for="note-text">Note</label>
-              <textarea id="note-text" name="text" rows="3" placeholder="Write a note..." required></textarea>
-            </div>
-            <button type="submit">Add note</button>
-          </form>
-        </details>
+        <form id="note-form" class="add-form" hidden>
+          <div class="field">
+            <label for="note-text">Note</label>
+            <textarea id="note-text" name="text" rows="3" placeholder="Write a note..." required></textarea>
+          </div>
+          <button type="submit">Add note</button>
+        </form>
         <ul id="note-list" class="item-list"></ul>
       </details>
     </section>

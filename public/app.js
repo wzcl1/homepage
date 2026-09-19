@@ -418,10 +418,18 @@ function openAddForm(panelId) {
   const panel = document.getElementById(panelId);
   const section = panel.querySelector('.section-toggle');
   if (section) section.open = true;
-  const add = panel.querySelector('.add-toggle');
-  if (add) add.open = true;
-  const field = add && add.querySelector('input, textarea');
-  if (field) field.focus();
+
+  const isLink = panelId === 'links-panel';
+  const show = document.getElementById(isLink ? 'link-form' : 'note-form');
+  const hide = document.getElementById(isLink ? 'note-form' : 'link-form');
+  hide.setAttribute('hidden', '');
+  show.removeAttribute('hidden');
+
+  const field = show.querySelector('input, textarea');
+  if (field) {
+    field.focus();
+    show.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
 }
 
 fab.addEventListener('click', () => {

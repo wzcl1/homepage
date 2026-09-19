@@ -98,46 +98,14 @@ body {
   transform: rotate(180deg);
 }
 
-.add-toggle {
-  margin-bottom: 1.25rem;
-}
-
-.add-toggle summary {
-  display: inline-block;
-  padding: 0.45rem 0.9rem;
-  font: inherit;
-  font-weight: 500;
-  font-size: 0.9rem;
-  color: var(--accent);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-}
-
-.add-toggle summary::-webkit-details-marker {
-  display: none;
-}
-
-.add-toggle summary:hover {
-  border-color: var(--accent);
-}
-
-.add-toggle[open] summary {
-  color: var(--text-primary);
-  border-color: var(--accent);
-}
-
-.add-toggle .add-form {
-  margin: 1rem 0 0;
-}
-
 .add-form {
   display: grid;
   gap: 0.75rem;
   margin-bottom: 1.25rem;
+}
+
+.add-form[hidden] {
+  display: none;
 }
 
 .field {
