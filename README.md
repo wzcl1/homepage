@@ -146,7 +146,7 @@ No Caddy or open firewall ports needed — Cloudflare terminates TLS at its edge
 
    ```
    Type: HTTP
-   URL:  homepage:3000
+   URL:  http://homepage:3000
    ```
 
    (`homepage` resolves to the container on the compose network internally.)
