@@ -359,8 +359,8 @@ noteForm.addEventListener('submit', addNote);
 function closeAllRows() {
   document.querySelectorAll('.row.swiped').forEach((el) => {
     el.classList.remove('swiped', 'dragging');
-    const c = el.querySelector('.row-content');
-    if (c) c.style.transform = '';
+    const a = el.querySelector('.row-actions');
+    if (a) a.style.transform = '';
   });
 }
 
@@ -374,8 +374,8 @@ function closeAllRows() {
   let suppressClick = false;
 
   function switchRow(open) {
-    const c = active.querySelector('.row-content');
-    c.style.transform = '';
+    const a = active.querySelector('.row-actions');
+    if (a) a.style.transform = '';
     active.classList.remove('dragging');
     active.classList.toggle('swiped', open);
   }
@@ -387,7 +387,7 @@ function closeAllRows() {
     startX = event.clientX;
     startY = event.clientY;
     startOpen = row.classList.contains('swiped');
-    px = startOpen ? row.style.getPropertyValue('--aw') || '0' : 0;
+    px = startOpen ? parseFloat(row.style.getPropertyValue('--aw')) || 150 : 0;
     dragging = false;
     suppressClick = false;
   });
@@ -403,7 +403,8 @@ function closeAllRows() {
       const aw = parseFloat(active.style.getPropertyValue('--aw')) || 150;
       px = Math.max(0, Math.min(aw, startOpen ? aw - dx : -dx));
       active.classList.add('dragging');
-      active.querySelector('.row-content').style.transform = `translateX(${-px}px)`;
+      const pct = 100 - (px / aw) * 100;
+      active.querySelector('.row-actions').style.transform = `translateX(${pct.toFixed(2)}%)`;
     }
   });
 

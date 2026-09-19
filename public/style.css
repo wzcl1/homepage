@@ -352,8 +352,6 @@ button[type="submit"]:hover {
   z-index: 1;
   min-width: 0;
   background: var(--surface);
-  transition: transform 0.2s ease;
-  will-change: transform;
 }
 
 .link-item .row-content {
@@ -367,16 +365,6 @@ button[type="submit"]:hover {
   --aw: 0px;
 }
 
-.row.swiped .row-content,
-.row.dragging .row-content {
-  transform: translateX(calc(-1 * var(--aw, 0px)));
-  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3);
-}
-
-.row.dragging .row-content {
-  transition: none;
-}
-
 .row-actions {
   position: absolute;
   top: 0;
@@ -388,7 +376,19 @@ button[type="submit"]:hover {
   padding: 0 0.5rem;
   background: var(--surface);
   border-left: 1px solid var(--border);
-  z-index: 0;
+  z-index: 2;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+}
+
+.row.swiped .row-actions,
+.row.dragging .row-actions {
+  transform: translateX(0);
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.row.dragging .row-actions {
+  transition: none;
 }
 
 .row-actions button {
@@ -420,9 +420,9 @@ button[type="submit"]:hover {
 }
 
 @media (hover: hover) {
-  .row.with-actions:hover .row-content {
-    transform: translateX(calc(-1 * var(--aw, 0px)));
-    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3);
+  .row.with-actions:hover .row-actions {
+    transform: translateX(0);
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.3);
   }
 }
 
