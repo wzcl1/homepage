@@ -39,7 +39,10 @@ function renderEmpty(container, text) {
 
 function makeLinkItem(link) {
   const li = document.createElement('li');
-  li.className = 'link-item row';
+  li.className = 'link-item row with-actions';
+
+  const content = document.createElement('div');
+  content.className = 'row-content';
 
   const main = document.createElement('div');
   main.className = 'item-main';
@@ -56,6 +59,7 @@ function makeLinkItem(link) {
 
   main.appendChild(a);
   main.appendChild(label);
+  content.appendChild(main);
 
   const actions = document.createElement('div');
   actions.className = 'row-actions';
@@ -75,7 +79,7 @@ function makeLinkItem(link) {
   actions.appendChild(editBtn);
   actions.appendChild(delBtn);
 
-  li.appendChild(main);
+  li.appendChild(content);
   li.appendChild(actions);
   return li;
 }
@@ -133,7 +137,10 @@ function renderLinkEditor(li, link) {
 
 function makeNoteItem(note) {
   const li = document.createElement('li');
-  li.className = 'note-item row';
+  li.className = 'note-item row with-actions';
+
+  const content = document.createElement('div');
+  content.className = 'row-content';
 
   const text = document.createElement('div');
   text.className = 'note-text clamped';
@@ -152,6 +159,7 @@ function makeNoteItem(note) {
   });
 
   wrapper.appendChild(text);
+  content.appendChild(wrapper);
 
   const actions = document.createElement('div');
   actions.className = 'row-actions';
@@ -174,9 +182,9 @@ function makeNoteItem(note) {
   const metaRow = document.createElement('div');
   metaRow.className = 'note-meta-row';
   metaRow.appendChild(toggle);
+  content.appendChild(metaRow);
 
-  li.appendChild(wrapper);
-  li.appendChild(metaRow);
+  li.appendChild(content);
   li.appendChild(actions);
   return li;
 }
@@ -264,7 +272,20 @@ function renderAll() {
       el.parentElement.classList.add('scrollable');
     }
   });
+
+  document.querySelectorAll('.row.with-actions').forEach((row) => {
+    const width = row.querySelector('.row-actions').offsetWidth;
+    if (width) row.style.setProperty('--aw', width + 'px');
+  });
 }
+
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.row.with-actions').forEach((row) => {
+    if (row.classList.contains('swiped')) return;
+    const width = row.querySelector('.row-actions').offsetWidth;
+    if (width) row.style.setProperty('--aw', width + 'px');
+  });
+});
 
 async function addLink(event) {
   event.preventDefault();
@@ -338,7 +359,8 @@ noteForm.addEventListener('submit', addNote);
 function closeAllRows() {
   document.querySelectorAll('.row.swiped').forEach((el) => {
     el.classList.remove('swiped', 'dragging');
-    el.style.removeProperty('--dx');
+    const c = el.querySelector('.row-content');
+    if (c) c.style.transform = '';
   });
 }
 
@@ -346,9 +368,17 @@ function closeAllRows() {
   let active = null;
   let startX = 0;
   let startY = 0;
-  let startVal = 0;
+  let startOpen = false;
+  let px = 0;
   let dragging = false;
   let suppressClick = false;
+
+  function switchRow(open) {
+    const c = active.querySelector('.row-content');
+    c.style.transform = '';
+    active.classList.remove('dragging');
+    active.classList.toggle('swiped', open);
+  }
 
   document.addEventListener('pointerdown', (event) => {
     const row = event.target.closest('.row');
@@ -356,7 +386,8 @@ function closeAllRows() {
     active = row;
     startX = event.clientX;
     startY = event.clientY;
-    startVal = row.classList.contains('swiped') ? 100 : 0;
+    startOpen = row.classList.contains('swiped');
+    px = startOpen ? row.style.getPropertyValue('--aw') || '0' : 0;
     dragging = false;
     suppressClick = false;
   });
@@ -369,21 +400,18 @@ function closeAllRows() {
       dragging = true;
     }
     if (dragging) {
-      const movement = (startVal === 100 ? -dx : dx) * 2.2;
-      let val = startVal + movement;
-      val = Math.max(0, Math.min(100, val));
+      const aw = parseFloat(active.style.getPropertyValue('--aw')) || 150;
+      px = Math.max(0, Math.min(aw, startOpen ? aw - dx : -dx));
       active.classList.add('dragging');
-      active.style.setProperty('--dx', val.toFixed(1) + '%');
+      active.querySelector('.row-content').style.transform = `translateX(${-px}px)`;
     }
   });
 
   function stopGesture(event) {
     if (!active) return;
     if (dragging) {
-      const val = parseFloat(active.style.getPropertyValue('--dx')) || 0;
-      active.classList.remove('dragging');
-      active.style.removeProperty('--dx');
-      active.classList.toggle('swiped', val >= 50);
+      const aw = parseFloat(active.style.getPropertyValue('--aw')) || 150;
+      switchRow(px >= aw / 2);
       suppressClick = true;
     }
     active = null;

@@ -338,8 +338,34 @@ button[type="submit"]:hover {
   touch-action: pan-y;
 }
 
-.row.swiped {
-  --dx: 100%;
+.row-content {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  background: var(--surface);
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+.link-item .row-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.row.with-actions {
+  --aw: 0px;
+}
+
+.row.swiped .row-content,
+.row.dragging .row-content {
+  transform: translateX(calc(-1 * var(--aw, 0px)));
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.row.dragging .row-content {
+  transition: none;
 }
 
 .row-actions {
@@ -353,13 +379,7 @@ button[type="submit"]:hover {
   padding: 0 0.5rem;
   background: var(--surface);
   border-left: 1px solid var(--border);
-  z-index: 2;
-  transform: translateX(calc(100% - var(--dx, 0%)));
-  transition: transform 0.2s ease;
-}
-
-.row.dragging .row-actions {
-  transition: none;
+  z-index: 0;
 }
 
 .row-actions button {
@@ -391,8 +411,9 @@ button[type="submit"]:hover {
 }
 
 @media (hover: hover) {
-  .row:hover .row-actions {
-    --dx: 100%;
+  .row.with-actions:hover .row-content {
+    transform: translateX(calc(-1 * var(--aw, 0px)));
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3);
   }
 }
 
