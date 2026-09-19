@@ -26,7 +26,7 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   line-height: 1.5;
-  padding-top: calc(env(safe-area-inset-top) + 7px);
+  padding-top: calc(env(safe-area-inset-top) + 40px);
 }
 
 .container {
@@ -74,7 +74,7 @@ body {
   }
 
   body {
-    padding-top: calc(env(safe-area-inset-top) + 64px);
+    padding-top: calc(env(safe-area-inset-top) + 76px);
   }
 }
 
