@@ -16,12 +16,17 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  touch-action: manipulation;
+}
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text-primary);
   line-height: 1.5;
-  padding-top: calc(env(safe-area-inset-top) + 28px);
+  padding-top: calc(env(safe-area-inset-top) + 7px);
 }
 
 .container {
