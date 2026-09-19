@@ -31,7 +31,7 @@ body {
 
 .container {
   max-width: 72rem;
-  margin: 1.25rem auto 0;
+  margin: 0 auto;
   padding: 1rem;
   display: grid;
   gap: 1.5rem;
