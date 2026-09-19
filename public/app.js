@@ -1,0 +1,339 @@
+const linkForm = document.getElementById('link-form');
+const noteForm = document.getElementById('note-form');
+const linkList = document.getElementById('link-list');
+const noteList = document.getElementById('note-list');
+const statusEl = document.getElementById('status');
+
+let statusTimer;
+
+function setStatus(message, type) {
+  statusEl.textContent = message;
+  statusEl.className = 'status' + (type ? ' ' + type : '');
+  clearTimeout(statusTimer);
+  if (message) {
+    statusTimer = setTimeout(() => {
+      statusEl.textContent = '';
+      statusEl.className = 'status';
+    }, 4000);
+  }
+}
+
+async function api(path, options) {
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.error || `Request failed (${res.status})`);
+  }
+  return body;
+}
+
+function renderEmpty(container, text) {
+  const li = document.createElement('li');
+  li.className = 'empty';
+  li.textContent = text;
+  container.appendChild(li);
+}
+
+function makeLinkItem(link) {
+  const li = document.createElement('li');
+  li.className = 'link-item';
+
+  const main = document.createElement('div');
+  main.className = 'item-main';
+
+  const a = document.createElement('a');
+  a.href = link.url;
+  a.textContent = link.label || link.url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+
+  const label = document.createElement('span');
+  label.className = 'link-label' + (link.label ? '' : ' hidden');
+  label.textContent = link.url;
+
+  main.appendChild(a);
+  main.appendChild(label);
+
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+
+  const editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.className = 'edit';
+  editBtn.textContent = 'Edit';
+  editBtn.addEventListener('click', () => renderLinkEditor(li, link));
+
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'delete';
+  delBtn.textContent = 'Delete';
+  delBtn.addEventListener('click', () => deleteLink(link.id));
+
+  actions.appendChild(editBtn);
+  actions.appendChild(delBtn);
+
+  li.appendChild(main);
+  li.appendChild(actions);
+  return li;
+}
+
+function renderLinkEditor(li, link) {
+  const editor = document.createElement('div');
+  editor.className = 'editing';
+
+  const urlInput = document.createElement('input');
+  urlInput.type = 'url';
+  urlInput.value = link.url;
+
+  const labelInput = document.createElement('input');
+  labelInput.type = 'text';
+  labelInput.value = link.label || '';
+
+  const actions = document.createElement('div');
+  actions.className = 'editing-actions';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.textContent = 'Save';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'delete';
+  cancelBtn.textContent = 'Cancel';
+
+  saveBtn.addEventListener('click', async () => {
+    try {
+      const links = await api(`/api/links/${link.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ url: urlInput.value, label: labelInput.value }),
+      });
+      state.links = links;
+      renderAll();
+      setStatus('Link updated.', 'success');
+    } catch (err) {
+      setStatus(err.message, 'error');
+    }
+  });
+
+  cancelBtn.addEventListener('click', renderAll);
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  editor.appendChild(urlInput);
+  editor.appendChild(labelInput);
+  editor.appendChild(actions);
+
+  li.replaceChildren(editor);
+  urlInput.focus();
+}
+
+function makeNoteItem(note) {
+  const li = document.createElement('li');
+  li.className = 'note-item';
+
+  const text = document.createElement('div');
+  text.className = 'note-text clamped';
+  text.textContent = note.text;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'notes-content-wrapper';
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'note-toggle';
+  toggle.textContent = 'Show more';
+  toggle.addEventListener('click', () => {
+    const expanded = !text.classList.toggle('clamped');
+    toggle.textContent = expanded ? 'Show less' : 'Show more';
+  });
+
+  wrapper.appendChild(text);
+
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+
+  const editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.className = 'edit';
+  editBtn.textContent = 'Edit';
+  editBtn.addEventListener('click', () => renderNoteEditor(li, note));
+
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'delete';
+  delBtn.textContent = 'Delete';
+  delBtn.addEventListener('click', () => deleteNote(note.id));
+
+  actions.appendChild(editBtn);
+  actions.appendChild(delBtn);
+
+  const metaRow = document.createElement('div');
+  metaRow.className = 'note-meta-row';
+  metaRow.appendChild(toggle);
+  metaRow.appendChild(actions);
+
+  li.appendChild(wrapper);
+  li.appendChild(metaRow);
+  return li;
+}
+
+function renderNoteEditor(li, note) {
+  const editor = document.createElement('div');
+  editor.className = 'editing';
+
+  const textarea = document.createElement('textarea');
+  textarea.rows = 4;
+  textarea.value = note.text;
+
+  const actions = document.createElement('div');
+  actions.className = 'editing-actions';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.textContent = 'Save';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'delete';
+  cancelBtn.textContent = 'Cancel';
+
+  saveBtn.addEventListener('click', async () => {
+    try {
+      const notes = await api(`/api/notes/${note.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ text: textarea.value }),
+      });
+      state.notes = notes;
+      renderAll();
+      setStatus('Note updated.', 'success');
+    } catch (err) {
+      setStatus(err.message, 'error');
+    }
+  });
+
+  cancelBtn.addEventListener('click', renderAll);
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  editor.appendChild(textarea);
+  editor.appendChild(actions);
+
+  li.replaceChildren(editor);
+  textarea.focus();
+}
+
+const state = { links: [], notes: [] };
+
+function renderAll() {
+  linkList.replaceChildren();
+  noteList.replaceChildren();
+
+  if (state.links.length === 0) {
+    renderEmpty(linkList, 'No links yet.');
+  } else {
+    state.links.forEach((link) => linkList.appendChild(makeLinkItem(link)));
+  }
+
+  if (state.notes.length === 0) {
+    renderEmpty(noteList, 'No notes yet.');
+  } else {
+    state.notes.forEach((note) => noteList.appendChild(makeNoteItem(note)));
+  }
+
+  noteList.querySelectorAll('.note-text').forEach((el) => {
+    const toggle = el.closest('.note-item').querySelector('.note-toggle');
+    el.classList.remove('clamped');
+    const expandedHeight = el.offsetHeight;
+    el.classList.add('clamped');
+    const clampedHeight = el.clientHeight;
+    if (toggle && expandedHeight > clampedHeight) {
+      toggle.classList.add('visible');
+    }
+    if (el.scrollWidth > el.clientWidth) {
+      el.parentElement.classList.add('scrollable');
+    }
+  });
+}
+
+async function addLink(event) {
+  event.preventDefault();
+  const urlInput = document.getElementById('link-url');
+  const labelInput = document.getElementById('link-label');
+  const url = urlInput.value.trim();
+  if (!/^https?:\/\/.+/.test(url)) {
+    setStatus('URL must start with http:// or https://.', 'error');
+    return;
+  }
+  try {
+    const links = await api('/api/links', {
+      method: 'POST',
+      body: JSON.stringify({ url, label: labelInput.value }),
+    });
+    state.links = links;
+    renderAll();
+    linkForm.reset();
+    setStatus('Link added.', 'success');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function addNote(event) {
+  event.preventDefault();
+  const textarea = document.getElementById('note-text');
+  const text = textarea.value.trim();
+  if (!text) return;
+  try {
+    const notes = await api('/api/notes', {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    });
+    state.notes = notes;
+    renderAll();
+    noteForm.reset();
+    setStatus('Note added.', 'success');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function deleteLink(id) {
+  if (!confirm('Delete this link?')) return;
+  try {
+    const links = await api(`/api/links/${id}`, { method: 'DELETE' });
+    state.links = links;
+    renderAll();
+    setStatus('Link deleted.', 'success');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function deleteNote(id) {
+  if (!confirm('Delete this note?')) return;
+  try {
+    const notes = await api(`/api/notes/${id}`, { method: 'DELETE' });
+    state.notes = notes;
+    renderAll();
+    setStatus('Note deleted.', 'success');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+linkForm.addEventListener('submit', addLink);
+noteForm.addEventListener('submit', addNote);
+
+(async () => {
+  try {
+    const data = await api('/api/data');
+    state.links = data.links || [];
+    state.notes = data.notes || [];
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+  renderAll();
+})();

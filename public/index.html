@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Homepage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="page-header">
+    <h1>Homepage</h1>
+  </header>
+
+  <main class="container">
+    <section class="panel" aria-labelledby="links-heading">
+      <h2 id="links-heading">Links</h2>
+      <details class="add-toggle">
+        <summary>Add link</summary>
+        <form id="link-form" class="add-form">
+          <div class="field">
+            <label for="link-url">URL</label>
+            <input type="url" id="link-url" name="url" placeholder="https://example.com" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="link-label">Label</label>
+            <input type="text" id="link-label" name="label" placeholder="Optional label" autocomplete="off">
+          </div>
+          <button type="submit">Add link</button>
+        </form>
+      </details>
+      <ul id="link-list" class="item-list"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="notes-heading">
+      <h2 id="notes-heading">Notes</h2>
+      <details class="add-toggle">
+        <summary>Add note</summary>
+        <form id="note-form" class="add-form">
+          <div class="field">
+            <label for="note-text">Note</label>
+            <textarea id="note-text" name="text" rows="3" placeholder="Write a note..." required></textarea>
+          </div>
+          <button type="submit">Add note</button>
+        </form>
+      </details>
+      <ul id="note-list" class="item-list"></ul>
+    </section>
+  </main>
+
+  <p id="status" class="status" role="status" aria-live="polite"></p>
+
+  <script src="app.js"></script>
+</body>
+</html>
