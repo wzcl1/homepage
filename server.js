@@ -5,7 +5,7 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_PATH = process.env.DATA_PATH || path.join(__dirname, 'data.json');
+const DATA_PATH = process.env.DATA_PATH || path.join(__dirname, 'data', 'data.json');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -39,7 +39,7 @@ function withMutation(fn) {
   return run;
 }
 
-const httpUrl = (value) => {
+function httpUrl(value) {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
@@ -51,96 +51,74 @@ const httpUrl = (value) => {
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
   return url.toString();
-};
+}
+
+function validateLink(body) {
+  const url = httpUrl(body && body.url);
+  if (!url) return { error: 'A valid http(s) URL is required.' };
+  const label = body && typeof body.label === 'string' ? body.label.trim() : '';
+  return { item: { url, label } };
+}
+
+function validateNote(body) {
+  const text = body && typeof body.text === 'string' ? body.text.trim() : '';
+  if (!text) return { error: 'Note text is required.' };
+  return { item: { text } };
+}
+
+function makeCollectionRouter(key, noun, validate) {
+  const notFound = Object.assign(new Error(`${noun} not found.`), { status: 404 });
+
+  app.post(`/api/${key}`, (req, res, next) => {
+    const { item, error } = validate(req.body);
+    if (error) return res.status(400).json({ error });
+    withMutation(() => {
+      const data = readData();
+      data[key].push({ id: crypto.randomUUID(), ...item, createdAt: new Date().toISOString() });
+      atomicWrite(data);
+      return data[key];
+    }).then((items) => res.json(items), next);
+  });
+
+  app.put(`/api/${key}/:id`, (req, res, next) => {
+    const { item, error } = validate(req.body);
+    if (error) return res.status(400).json({ error });
+    withMutation(() => {
+      const data = readData();
+      const existing = data[key].find((x) => x.id === req.params.id);
+      if (!existing) throw notFound;
+      Object.assign(existing, item);
+      atomicWrite(data);
+      return data[key];
+    }).then((items) => res.json(items), next);
+  });
+
+  app.delete(`/api/${key}/:id`, (req, res, next) => {
+    withMutation(() => {
+      const data = readData();
+      const before = data[key].length;
+      data[key] = data[key].filter((x) => x.id !== req.params.id);
+      if (data[key].length === before) throw notFound;
+      atomicWrite(data);
+      return data[key];
+    }).then((items) => res.json(items), next);
+  });
+}
 
 app.get('/api/data', (req, res, next) => {
   try {
-    ensureDataFile();
     res.json(readData());
   } catch (err) {
     next(err);
   }
 });
 
-app.post('/api/links', (req, res, next) => {
-  const url = httpUrl(req.body && req.body.url);
-  const label = req.body && typeof req.body.label === 'string' ? req.body.label.trim() : '';
-  if (!url) return res.status(400).json({ error: 'A valid http(s) URL is required.' });
-  withMutation(() => {
-    const data = readData();
-    data.links.push({ id: crypto.randomUUID(), label, url, createdAt: new Date().toISOString() });
-    atomicWrite(data);
-    return data.links;
-  }).then((links) => res.json(links), next);
-});
-
-app.put('/api/links/:id', (req, res, next) => {
-  const { id } = req.params;
-  const url = httpUrl(req.body && req.body.url);
-  const label = req.body && typeof req.body.label === 'string' ? req.body.label.trim() : '';
-  if (!url) return res.status(400).json({ error: 'A valid http(s) URL is required.' });
-  withMutation(() => {
-    const data = readData();
-    const item = data.links.find((l) => l.id === id);
-    if (!item) throw Object.assign(new Error('Link not found.'), { status: 404 });
-    item.url = url;
-    item.label = label;
-    atomicWrite(data);
-    return data.links;
-  }).then((links) => res.json(links), next);
-});
-
-app.delete('/api/links/:id', (req, res, next) => {
-  const { id } = req.params;
-  withMutation(() => {
-    const data = readData();
-    const before = data.links.length;
-    data.links = data.links.filter((l) => l.id !== id);
-    if (data.links.length === before) throw Object.assign(new Error('Link not found.'), { status: 404 });
-    atomicWrite(data);
-    return data.links;
-  }).then((links) => res.json(links), next);
-});
-
-app.post('/api/notes', (req, res, next) => {
-  const text = req.body && typeof req.body.text === 'string' ? req.body.text.trim() : '';
-  if (!text) return res.status(400).json({ error: 'Note text is required.' });
-  withMutation(() => {
-    const data = readData();
-    data.notes.push({ id: crypto.randomUUID(), text, createdAt: new Date().toISOString() });
-    atomicWrite(data);
-    return data.notes;
-  }).then((notes) => res.json(notes), next);
-});
-
-app.put('/api/notes/:id', (req, res, next) => {
-  const { id } = req.params;
-  const text = req.body && typeof req.body.text === 'string' ? req.body.text.trim() : '';
-  if (!text) return res.status(400).json({ error: 'Note text is required.' });
-  withMutation(() => {
-    const data = readData();
-    const item = data.notes.find((n) => n.id === id);
-    if (!item) throw Object.assign(new Error('Note not found.'), { status: 404 });
-    item.text = text;
-    atomicWrite(data);
-    return data.notes;
-  }).then((notes) => res.json(notes), next);
-});
-
-app.delete('/api/notes/:id', (req, res, next) => {
-  const { id } = req.params;
-  withMutation(() => {
-    const data = readData();
-    const before = data.notes.length;
-    data.notes = data.notes.filter((n) => n.id !== id);
-    if (data.notes.length === before) throw Object.assign(new Error('Note not found.'), { status: 404 });
-    atomicWrite(data);
-    return data.notes;
-  }).then((notes) => res.json(notes), next);
-});
+makeCollectionRouter('links', 'Link', validateLink);
+makeCollectionRouter('notes', 'Note', validateNote);
 
 app.use((err, req, res, next) => {
   if (err && err.status) return res.status(err.status).json({ error: err.message });
+  if (err && err.type === 'entity.parse.failed') return res.status(400).json({ error: 'Invalid JSON body.' });
   console.error(err);
   res.status(500).json({ error: 'Server error.' });
 });

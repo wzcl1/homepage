@@ -4,6 +4,8 @@ const linkList = document.getElementById('link-list');
 const noteList = document.getElementById('note-list');
 const statusEl = document.getElementById('status');
 
+const state = { links: [], notes: [] };
+
 let statusTimer;
 
 function setStatus(message, type) {
@@ -273,8 +275,6 @@ function renderNoteEditor(li, note) {
   textarea.focus();
 }
 
-const state = { links: [], notes: [] };
-
 function renderAll() {
   linkList.replaceChildren();
   noteList.replaceChildren();
@@ -282,8 +282,9 @@ function renderAll() {
   document.getElementById('link-count').textContent = state.links.length;
   document.getElementById('note-count').textContent = state.notes.length;
 
-  const links = [...state.links].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
-  const notes = [...state.notes].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+  const byCreatedDesc = (a, b) => (a.createdAt || '') < (b.createdAt || '') ? 1 : -1;
+  const links = [...state.links].sort(byCreatedDesc);
+  const notes = [...state.notes].sort(byCreatedDesc);
 
   if (links.length === 0) {
     renderEmpty(linkList, 'No links yet.');
